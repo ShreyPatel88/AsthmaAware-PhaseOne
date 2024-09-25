@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>Asthma Aware Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Include Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Include CSS file -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,28 +14,51 @@
     <h1>Asthma Aware</h1>
   </header>
   <main class="container">
+    <!-- Controls Section -->
     <section class="controls">
       <button id="connect-button">Connect to Nicla Sense ME</button>
     </section>
+    <!-- Data Display Section -->
     <section class="data-display">
       <div class="card">
         <h2>Temperature</h2>
+        <canvas id="temperature-chart"></canvas>
         <p id="temperature-value">-- °C</p>
       </div>
       <div class="card">
         <h2>Humidity</h2>
+        <canvas id="humidity-chart"></canvas>
         <p id="humidity-value">-- %</p>
       </div>
       <div class="card">
         <h2>Air Quality Index</h2>
+        <canvas id="air-quality-chart"></canvas>
         <p id="air-quality-value">--</p>
       </div>
     </section>
+    <!-- Insights Section -->
     <section class="insights">
       <h2>Insights</h2>
       <ul id="insights-list"></ul>
     </section>
+    <!-- Settings Section -->
+    <section class="settings">
+      <h2>Settings</h2>
+      <form id="settings-form">
+        <label for="airQualityThreshold">Air Quality Threshold:</label>
+        <input type="number" id="airQualityThreshold" name="airQualityThreshold" value="100">
+        
+        <label for="humidityHighThreshold">High Humidity Threshold (%):</label>
+        <input type="number" id="humidityHighThreshold" name="humidityHighThreshold" value="60">
+        
+        <label for="humidityLowThreshold">Low Humidity Threshold (%):</label>
+        <input type="number" id="humidityLowThreshold" name="humidityLowThreshold" value="30">
+    
+        <button type="submit">Save Settings</button>
+      </form>
+    </section>
   </main>
+  <!-- Include JavaScript file -->
   <script src="app.js"></script>
 </body>
 </html>
