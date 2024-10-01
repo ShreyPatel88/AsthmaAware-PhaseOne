@@ -1,9 +1,6 @@
 // app.js
 
 // UUIDs for the BLE service and characteristics
-// app.js
-
-// UUIDs for the BLE service and characteristics
 const serviceUuid = '19b10000-0000-537e-4f6c-d104768a1214';
 
 const characteristicUuids = {
@@ -12,7 +9,6 @@ const characteristicUuids = {
   airQuality: '19b10000-9001-537e-4f6c-d104768a1214',
 };
 
-// Elements from the DOM
 // Elements from the DOM
 const connectButton = document.getElementById('connect-button');
 
@@ -263,7 +259,7 @@ async function connectToDevice() {
 
     // Request the BLE device
     const device = await navigator.bluetooth.requestDevice({
-      filters: [{ namePrefix: 'Nicla' }],
+      acceptAllDevices: true,
       optionalServices: [serviceUuid],
     });
 
@@ -482,14 +478,4 @@ function displayInsights(insights) {
     listItem.textContent = insight;
     insightsList.appendChild(listItem);
   });
-}
-
-// Send browser notification
-function sendNotification(message) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('Asthma Aware Alert', {
-      body: message,
-      icon: 'icon.png', // Replace with the path to your icon image
-    });
-  }
 }
