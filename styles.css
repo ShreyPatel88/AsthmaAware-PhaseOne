@@ -1,4 +1,4 @@
-
+/* styles.css */
 
 body {
     margin: 0;
@@ -37,7 +37,7 @@ body {
     margin-bottom: 1em;
     border-radius: 8px;
     text-align: center;
-    max-height: 500px;
+    height: 500px;
   }
   
   .card h2 {
