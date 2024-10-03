@@ -4,61 +4,96 @@
   <meta charset="UTF-8">
   <title>Asthma Aware Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Include Bootstrap CSS -->
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  >
   <!-- Include Chart.js library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Include CSS file -->
+  <!-- Include your CSS file -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
+  <header class="bg-primary text-white text-center py-3">
     <h1>Asthma Aware</h1>
   </header>
-  <main class="container">
+  <main class="container mt-4">
     <!-- Controls Section -->
-    <section class="controls">
-      <button id="connect-button">Connect to Nicla Sense ME</button>
+    <section class="controls text-center mb-4">
+      <button id="connect-button" class="btn btn-success">Connect to Nicla Sense ME</button>
     </section>
     <!-- Data Display Section -->
-    <section class="data-display">
-      <div class="card">
-        <h2>Temperature</h2>
-        <canvas id="temperature-chart"></canvas>
-        <p id="temperature-value">-- °C</p>
+    <section class="data-display row">
+      <!-- Temperature Card -->
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header text-center">
+            Temperature
+          </div>
+          <div class="card-body">
+            <canvas id="temperature-chart"></canvas>
+            <p id="temperature-value" class="mt-2 text-center font-weight-bold">-- °C</p>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h2>Humidity</h2>
-        <canvas id="humidity-chart"></canvas>
-        <p id="humidity-value">-- %</p>
+      <!-- Humidity Card -->
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header text-center">
+            Humidity
+          </div>
+          <div class="card-body">
+            <canvas id="humidity-chart"></canvas>
+            <p id="humidity-value" class="mt-2 text-center font-weight-bold">-- %</p>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h2>Air Quality Index</h2>
-        <canvas id="air-quality-chart"></canvas>
-        <p id="air-quality-value">--</p>
+      <!-- Air Quality Card -->
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header text-center">
+            Air Quality Index
+          </div>
+          <div class="card-body">
+            <canvas id="air-quality-chart"></canvas>
+            <p id="air-quality-value" class="mt-2 text-center font-weight-bold">--</p>
+          </div>
+        </div>
       </div>
     </section>
     <!-- Insights Section -->
-    <section class="insights">
+    <section class="insights mt-4">
       <h2>Insights</h2>
-      <ul id="insights-list"></ul>
+      <ul id="insights-list" class="list-group">
+        <!-- Insights will be appended here -->
+      </ul>
     </section>
     <!-- Settings Section -->
-    <section class="settings">
+    <section class="settings mt-5">
       <h2>Settings</h2>
-      <form id="settings-form">
-        <label for="airQualityThreshold">Air Quality Threshold:</label>
-        <input type="number" id="airQualityThreshold" name="airQualityThreshold" value="100">
-        
-        <label for="humidityHighThreshold">High Humidity Threshold (%):</label>
-        <input type="number" id="humidityHighThreshold" name="humidityHighThreshold" value="60">
-        
-        <label for="humidityLowThreshold">Low Humidity Threshold (%):</label>
-        <input type="number" id="humidityLowThreshold" name="humidityLowThreshold" value="30">
-    
-        <button type="submit">Save Settings</button>
+      <form id="settings-form" class="needs-validation" novalidate>
+        <div class="form-group">
+          <label for="airQualityThreshold">Air Quality Threshold:</label>
+          <input type="number" class="form-control" id="airQualityThreshold" name="airQualityThreshold" value="100" required>
+        </div>
+        <div class="form-group">
+          <label for="humidityHighThreshold">High Humidity Threshold (%):</label>
+          <input type="number" class="form-control" id="humidityHighThreshold" name="humidityHighThreshold" value="60" required>
+        </div>
+        <div class="form-group">
+          <label for="humidityLowThreshold">Low Humidity Threshold (%):</label>
+          <input type="number" class="form-control" id="humidityLowThreshold" name="humidityLowThreshold" value="30" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
       </form>
     </section>
   </main>
-  <!-- Include JavaScript file -->
+  <!-- Include Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Include your JavaScript file -->
   <script src="app.js"></script>
 </body>
 </html>

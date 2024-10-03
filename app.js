@@ -49,7 +49,7 @@ document.getElementById('settings-form').addEventListener('submit', function(eve
   userSettings.humidityHighThreshold = parseFloat(document.getElementById('humidityHighThreshold').value);
   userSettings.humidityLowThreshold = parseFloat(document.getElementById('humidityLowThreshold').value);
   saveSettings();
-  alert('Settings saved successfully!');
+  showAlert('Settings saved successfully!', 'success');
 });
 
 // Load settings on page load
@@ -138,7 +138,7 @@ async function connectToDevice() {
 
     // Request the BLE device
     const device = await navigator.bluetooth.requestDevice({
-      filters: [{ namePrefix: 'N' }],
+      filters: [{ namePrefix: 'N' }], // Adjust the name prefix as needed
       optionalServices: [serviceUuid],
     });
 
@@ -162,16 +162,18 @@ async function connectToDevice() {
 
     // Start reading data
     startReadingData(characteristics);
+
+    showAlert('Device connected successfully!', 'success');
   } catch (error) {
     console.error('Connection failed!', error);
-    alert('Connection failed! Please try again.');
+    showAlert('Connection failed! Please try again.', 'danger');
   }
 }
 
 // Handle device disconnection
 function onDisconnected() {
   console.log('Device disconnected');
-  alert('Device disconnected');
+  showAlert('Device disconnected', 'warning');
 }
 
 // Start reading data from characteristics
@@ -195,6 +197,7 @@ async function startReadingData(characteristics) {
       const data = { temperature, humidity, airQuality };
       updateDisplay(data);
       provideInsights(data);
+      saveDataPoint(data);
     } catch (error) {
       console.error('Error reading data:', error);
     }
@@ -256,18 +259,25 @@ function provideInsights(data) {
   } else if (data.airQuality >= 50) {
     insights.push('Air quality is moderate. Limit prolonged outdoor activities.');
   } else {
-    insights.push('Air quality is good. Safe for outdoor activities.');
+    insights.push('Air quality is good. Enjoy your day!');
   }
 
   // Humidity Analysis
   if (data.humidity > userSettings.humidityHighThreshold) {
-    const message = 'High humidity levels detected. May trigger asthma symptoms.';
+    const message = 'High humidity detected. Possible increase in allergens.';
     insights.push(message);
     criticalAlerts.push(message);
   } else if (data.humidity < userSettings.humidityLowThreshold) {
-    const message = 'Low humidity levels detected. Dry air may cause irritation.';
+    const message = 'Low humidity detected. Dry air may cause irritation.';
     insights.push(message);
     criticalAlerts.push(message);
+  }
+
+  // Temperature Analysis
+  if (data.temperature > 30) {
+    insights.push('High temperature detected. Stay hydrated.');
+  } else if (data.temperature < 10) {
+    insights.push('Low temperature detected. Keep warm to avoid triggers.');
   }
 
   displayInsights(insights);
@@ -286,6 +296,7 @@ function displayInsights(insights) {
   insights.forEach((insight) => {
     const listItem = document.createElement('li');
     listItem.textContent = insight;
+    listItem.classList.add('list-group-item');
     insightsList.appendChild(listItem);
   });
 }
@@ -298,4 +309,36 @@ function sendNotification(message) {
       icon: 'icon.png', // Replace with the path to your icon image
     });
   }
+}
+
+// Show alert messages using Bootstrap alerts
+function showAlert(message, type = 'success') {
+  const alertContainer = document.getElementById('alert-container');
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+  alertDiv.role = 'alert';
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  `;
+  alertContainer.appendChild(alertDiv);
+
+  // Automatically remove the alert after 5 seconds
+  setTimeout(() => {
+    $(alertDiv).alert('close');
+  }, 5000);
+}
+
+// Save data point to localStorage
+function saveDataPoint(data) {
+  let historicalData = JSON.parse(localStorage.getItem('historicalData')) || [];
+  historicalData.push({
+    timestamp: new Date().toISOString(),
+    temperature: data.temperature,
+    humidity: data.humidity,
+    airQuality: data.airQuality,
+  });
+  localStorage.setItem('historicalData', JSON.stringify(historicalData));
 }
