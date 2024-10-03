@@ -5,96 +5,162 @@
   <title>Asthma Aware Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Include Bootstrap CSS -->
-  <link
-    rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-  >
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <!-- Include Chart.js library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Include Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <!-- Include your CSS file -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="bg-gray-100">
   <header class="bg-primary text-white text-center py-3">
     <h1>Asthma Aware</h1>
   </header>
+
+  <!-- Tabs for Device and Weather -->
+  <div class="flex justify-center bg-white py-4 shadow-md">
+    <button class="px-4 py-2 font-semibold" onclick="openTab('device')">My Device</button>
+    <button class="px-4 py-2 font-semibold" onclick="openTab('weather')">Weather</button>
+  </div>
+
   <main class="container mt-4">
-    <!-- Controls Section -->
-    <section class="controls text-center mb-4">
-      <button id="connect-button" class="btn btn-success">Connect to Nicla Sense ME</button>
-    </section>
-    <!-- Data Display Section -->
-    <section class="data-display row">
-      <!-- Temperature Card -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-header text-center">
-            Temperature
-          </div>
-          <div class="card-body">
-            <canvas id="temperature-chart"></canvas>
-            <p id="temperature-value" class="mt-2 text-center font-weight-bold">-- °C</p>
-          </div>
-        </div>
-      </div>
-      <!-- Humidity Card -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-header text-center">
-            Humidity
-          </div>
-          <div class="card-body">
-            <canvas id="humidity-chart"></canvas>
-            <p id="humidity-value" class="mt-2 text-center font-weight-bold">-- %</p>
+    <!-- My Device Tab -->
+    <div id="device" class="tab-content">
+      <!-- Controls Section -->
+      <section class="controls text-center mb-4">
+        <button id="connect-button" class="btn btn-success">Connect to Nicla Sense ME</button>
+      </section>
+      <!-- Data Display Section -->
+      <section class="data-display row">
+        <!-- Temperature Card -->
+        <div class="col-md-4 mb-4">
+          <div class="card">
+            <div class="card-header text-center">
+              Temperature
+            </div>
+            <div class="card-body">
+              <canvas id="temperature-chart"></canvas>
+              <p id="temperature-value" class="mt-2 text-center font-weight-bold">-- °C</p>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- Air Quality Card -->
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-header text-center">
-            Air Quality Index
+        <!-- Humidity Card -->
+        <div class="col-md-4 mb-4">
+          <div class="card">
+            <div class="card-header text-center">
+              Humidity
+            </div>
+            <div class="card-body">
+              <canvas id="humidity-chart"></canvas>
+              <p id="humidity-value" class="mt-2 text-center font-weight-bold">-- %</p>
+            </div>
           </div>
-          <div class="card-body">
-            <canvas id="air-quality-chart"></canvas>
-            <p id="air-quality-value" class="mt-2 text-center font-weight-bold">--</p>
+        </div>
+        <!-- Air Quality Card -->
+        <div class="col-md-4 mb-4">
+          <div class="card">
+            <div class="card-header text-center">
+              Air Quality Index
+            </div>
+            <div class="card-body">
+              <canvas id="air-quality-chart"></canvas>
+              <p id="air-quality-value" class="mt-2 text-center font-weight-bold">--</p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-    <!-- Insights Section -->
-    <section class="insights mt-4">
-      <h2>Insights</h2>
-      <ul id="insights-list" class="list-group">
-        <!-- Insights will be appended here -->
-      </ul>
-    </section>
-    <!-- Settings Section -->
-    <section class="settings mt-5">
-      <h2>Settings</h2>
-      <form id="settings-form" class="needs-validation" novalidate>
-        <div class="form-group">
-          <label for="airQualityThreshold">Air Quality Threshold:</label>
-          <input type="number" class="form-control" id="airQualityThreshold" name="airQualityThreshold" value="100" required>
+      </section>
+      <!-- Insights Section -->
+      <section class="insights mt-4">
+        <h2>Insights</h2>
+        <ul id="insights-list" class="list-group">
+          <!-- Insights will be appended here -->
+        </ul>
+      </section>
+      <!-- Settings Section -->
+      <section class="settings mt-5">
+        <h2>Settings</h2>
+        <form id="settings-form" class="needs-validation" novalidate>
+          <div class="form-group">
+            <label for="airQualityThreshold">Air Quality Threshold:</label>
+            <input type="number" class="form-control" id="airQualityThreshold" name="airQualityThreshold" value="100" required>
+          </div>
+          <div class="form-group">
+            <label for="humidityHighThreshold">High Humidity Threshold (%):</label>
+            <input type="number" class="form-control" id="humidityHighThreshold" name="humidityHighThreshold" value="60" required>
+          </div>
+          <div class="form-group">
+            <label for="humidityLowThreshold">Low Humidity Threshold (%):</label>
+            <input type="number" class="form-control" id="humidityLowThreshold" name="humidityLowThreshold" value="30" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- Weather Tab -->
+    <div id="weather" class="tab-content p-4" style="display: none;">
+      <!-- Search form -->
+      <form id="search-form" class="mb-4">
+        <div class="relative">
+          <input type="text" id="location-search" list="city-suggestions" placeholder="Enter US city name" class="w-full p-2 border rounded-lg">
+          <datalist id="city-suggestions"></datalist>
+          <button type="submit" class="absolute right-2 top-2 bg-blue-500 text-white px-4 py-1 rounded">Search</button>
         </div>
-        <div class="form-group">
-          <label for="humidityHighThreshold">High Humidity Threshold (%):</label>
-          <input type="number" class="form-control" id="humidityHighThreshold" name="humidityHighThreshold" value="60" required>
-        </div>
-        <div class="form-group">
-          <label for="humidityLowThreshold">Low Humidity Threshold (%):</label>
-          <input type="number" class="form-control" id="humidityLowThreshold" name="humidityLowThreshold" value="30" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Save Settings</button>
       </form>
-    </section>
+
+      <!-- Location Header -->
+      <div class="text-center text-xl font-semibold my-4">
+        <span id="location-icon">📍</span>
+        <span id="location-name">Loading location...</span>
+      </div>
+
+      <!-- Weather Info -->
+      <div class="bg-gradient-to-b from-blue-100 to-blue-300 text-center py-16 rounded-lg shadow-md">
+        <div id="temperature" class="text-6xl font-bold">-- F</div>
+      </div>
+
+      <!-- Weather Details -->
+      <div class="grid grid-cols-3 gap-4 mt-6">
+        <div class="text-center bg-white p-4 rounded-lg shadow-md">
+          <p class="text-gray-500">Precipitation</p>
+          <h2 id="precipitation" class="text-2xl font-semibold">--%</h2>
+        </div>
+        <div class="text-center bg-white p-4 rounded-lg shadow-md">
+          <p class="text-gray-500">Humidity</p>
+          <h2 id="humidity" class="text-2xl font-semibold">--%</h2>
+        </div>
+        <div class="text-center bg-white p-4 rounded-lg shadow-md">
+          <p class="text-gray-500">Wind</p>
+          <h2 id="wind" class="text-2xl font-semibold">-- mph</h2>
+        </div>
+      </div>
+    </div>
   </main>
+
+  <!-- Bottom Navigation -->
+  <div class="fixed bottom-0 left-0 w-full bg-white shadow-lg flex justify-around py-4">
+    <button class="text-center text-gray-600" onclick="openTab('device')">
+      <span class="block text-2xl">🏠</span>
+      <span>Home</span>
+    </button>
+    <button class="text-center text-gray-600">
+      <span class="block text-2xl">🗺️</span>
+      <span>Map</span>
+    </button>
+    <button class="text-center text-gray-600">
+      <span class="block text-2xl">⚙️</span>
+      <span>Settings</span>
+    </button>
+  </div>
+
   <!-- Include Bootstrap JS and dependencies -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <!-- Include your JavaScript file -->
+  <!-- Include your JavaScript files -->
   <script src="app.js"></script>
+  <script src="weather.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -105,6 +171,20 @@
         });
       });
     }
+
+    // Function to switch between tabs
+    function openTab(tabName) {
+      const tabs = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].style.display = "none";
+      }
+      document.getElementById(tabName).style.display = "block";
+    }
+
+    // Initialize the app with the device tab open
+    window.onload = function() {
+      openTab('device');
+    };
   </script>
 </body>
 </html>
