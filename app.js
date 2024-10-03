@@ -1,5 +1,9 @@
 // app.js
 
+// Add these variables at the top of the file
+let lastNotificationTime = {};
+const notificationCooldown = 300000; // 5 minutes in milliseconds
+
 // UUIDs for the BLE service and characteristics
 const serviceUuid = '19b10000-0000-537e-4f6c-d104768a1214';
 
@@ -76,7 +80,7 @@ function initializeCharts() {
     data: {
       labels: timeLabels,
       datasets: [{
-        label: 'Temperature (°C)',
+        label: 'Temperature (°F)', // Changed from °C to °F
         data: temperatureData,
         borderColor: 'rgb(255, 99, 132)',
         fill: false,
@@ -179,12 +183,15 @@ function onDisconnected() {
 // Start reading data from characteristics
 async function startReadingData(characteristics) {
   // Request notification permission
-  if ('Notification' in window && Notification.permission !== 'granted') {
-    Notification.requestPermission().then(permission => {
+  if ('Notification' in window) {
+    if (Notification.permission !== 'granted') {
+      const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        alert('Notifications are disabled. You will not receive alerts for critical readings.');
+        console.log('Notifications are disabled. You will not receive alerts for critical readings.');
       }
-    });
+    }
+  } else {
+    console.log('This browser does not support notifications.');
   }
 
   // Read data periodically
@@ -204,10 +211,11 @@ async function startReadingData(characteristics) {
   }, 1000);
 }
 
-// Read float value from characteristic
+// Read float value from characteristic and convert to Fahrenheit
 async function readFloatCharacteristic(characteristic) {
   const value = await characteristic.readValue();
-  return value.getFloat32(0, true);
+  const celsius = value.getFloat32(0, true);
+  return (celsius * 9/5) + 32; // Convert Celsius to Fahrenheit
 }
 
 // Read unsigned integer value from characteristic
@@ -241,7 +249,7 @@ function updateDisplay(data) {
   airQualityChart.update();
 
   // Update text values
-  document.getElementById('temperature-value').textContent = `${data.temperature.toFixed(1)} °C`;
+  document.getElementById('temperature-value').textContent = `${data.temperature.toFixed(1)} °F`;
   document.getElementById('humidity-value').textContent = `${data.humidity} %`;
   document.getElementById('air-quality-value').textContent = data.airQuality.toFixed(1);
 }
@@ -255,7 +263,7 @@ function provideInsights(data) {
   if (data.airQuality >= userSettings.airQualityThreshold) {
     const message = 'Air quality is poor. Stay indoors and consider using an air purifier.';
     insights.push(message);
-    criticalAlerts.push(message);
+    criticalAlerts.push({ type: 'airQuality', message });
   } else if (data.airQuality >= 50) {
     insights.push('Air quality is moderate. Limit prolonged outdoor activities.');
   } else {
@@ -266,25 +274,29 @@ function provideInsights(data) {
   if (data.humidity > userSettings.humidityHighThreshold) {
     const message = 'High humidity detected. Possible increase in allergens.';
     insights.push(message);
-    criticalAlerts.push(message);
+    criticalAlerts.push({ type: 'humidity', message });
   } else if (data.humidity < userSettings.humidityLowThreshold) {
     const message = 'Low humidity detected. Dry air may cause irritation.';
     insights.push(message);
-    criticalAlerts.push(message);
+    criticalAlerts.push({ type: 'humidity', message });
   }
 
   // Temperature Analysis
-  if (data.temperature > 30) {
-    insights.push('High temperature detected. Stay hydrated.');
-  } else if (data.temperature < 10) {
-    insights.push('Low temperature detected. Keep warm to avoid triggers.');
+  if (data.temperature > 86) {
+    const message = 'High temperature detected. Stay hydrated.';
+    insights.push(message);
+    criticalAlerts.push({ type: 'temperature', message });
+  } else if (data.temperature < 50) {
+    const message = 'Low temperature detected. Keep warm to avoid triggers.';
+    insights.push(message);
+    criticalAlerts.push({ type: 'temperature', message });
   }
 
   displayInsights(insights);
 
-  // Send notifications for critical alerts
-  criticalAlerts.forEach(alertMessage => {
-    sendNotification(alertMessage);
+  // Send notifications for critical alerts with cooldown
+  criticalAlerts.forEach(alert => {
+    sendNotificationWithCooldown(alert.type, alert.message);
   });
 }
 
@@ -304,10 +316,32 @@ function displayInsights(insights) {
 // Send browser notification
 function sendNotification(message) {
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('Asthma Aware Alert', {
-      body: message,
-      icon: 'icon.png', // Replace with the path to your icon image
-    });
+    // For Android compatibility
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(function(registration) {
+        registration.showNotification('Asthma Aware Alert', {
+          body: message,
+          icon: 'icon.png', // Replace with the path to your icon image
+          vibrate: [200, 100, 200], // Vibration pattern for mobile devices
+          tag: 'asthma-alert' // Prevents duplicate notifications
+        });
+      });
+    } else {
+      // Fallback for browsers that don't support service workers
+      new Notification('Asthma Aware Alert', {
+        body: message,
+        icon: 'icon.png' // Replace with the path to your icon image
+      });
+    }
+  }
+}
+
+// Add this new function for notifications with cooldown
+function sendNotificationWithCooldown(type, message) {
+  const now = Date.now();
+  if (!lastNotificationTime[type] || (now - lastNotificationTime[type] > notificationCooldown)) {
+    sendNotification(message);
+    lastNotificationTime[type] = now;
   }
 }
 
